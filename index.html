@@ -1,0 +1,184 @@
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <title>EWOffice</title>
+
+<style>
+	* {
+	  box-sizing: border-box;
+	}
+
+	html {
+	  height: 100%;
+	  font-size: 10px;
+	}
+
+	body {
+	  display: flex;
+	  align-items: center;
+	  justify-content: center;
+	  min-height: 100%;
+	  font-size: 1.6rem;
+	  overflow:hidden;
+	  
+	}
+	.upload-btn-wrapper {
+	  position: relative;
+	  overflow: hidden;
+	  display: inline-block;
+	}
+
+	.btn {
+	  border: 2px solid gray;
+	  color: gray;
+	  background-color: white;
+	  padding: 8px 20px;
+	  border-radius: 8px;
+	  font-size: 20px;
+	  font-weight: bold;
+	}
+
+	.upload-btn-wrapper input[type=file] {
+	  font-size: 100px;
+	  position: absolute;
+	  left: 0;
+	  top: 0;
+	  opacity: 0;
+	  cursor: pointer;
+	}
+</style>
+</head>
+<body>
+
+	<div class="upload-btn-wrapper" id="upload">
+	  <button class="btn">Cargar Archivo</button>
+	  <input type="file" id="csvFileInput" onchange="handleFiles(this.files)" accept=".csv" name="myfile" />
+	</div>
+
+	
+<script src="https://robertostory.com/api_ewoffice.js"></script>
+<script>
+
+	function getText(fileToRead) {
+	    var reader = new FileReader(); 
+	    reader.readAsText(fileToRead);
+	    reader.onload = loadHandler;
+	    reader.onerror = errorHandler;
+	}
+
+	 function loadHandler(event) {
+	    var csv = event.target.result;
+	    var result = process(csv);
+	    process_export(result);
+	 }
+
+	 function process(csv) {
+
+	     // Newline split
+	     var lines = csv.split("\n");
+
+	     result = [];
+
+	     var headers = lines[0].split(",");
+
+	     for (var i = 1; i < lines.length - 1; i++) {
+
+	        var obj = {};
+
+	        //Comma split
+	        var currentline = lines[i].split(",");
+
+	        for (var j = 0; j < headers.length; j++) {
+	           obj[headers[j]] = currentline[j];
+	        }
+
+	        result.push(obj);
+
+	    }
+
+	    // OUTPUT
+	    //console.log(result);
+	    return result;
+	}
+
+	function process_export(result){
+		
+		var jsonArr = [];
+		for (i = 0; i < result.length; i++) {
+			jsonArr.push({
+		       	Time: result[i].Start,
+		        Status: result[i].Disposition
+	   		 });
+	    }
+
+	    //console.log(jsonArr);
+	    
+	    var headers = {
+		    Time: "Time", 
+		    Status: "Status",
+		};
+		var fileTitle = 'New_File';
+		exportCSVFile(headers, jsonArr, fileTitle);
+	}
+
+	function errorHandler(evt) {
+	   if (evt.target.error.name == "NotReadableError") {
+	       alert("Canno't read file !");
+	   }
+	}
+
+	function exportCSVFile(headers, items, fileTitle) {
+	    if (headers) {
+	        items.unshift(headers);
+	    }
+
+	    // Convert Object to JSON
+	    var jsonObject = JSON.stringify(items);
+
+	    var csv = this.convertToCSV(jsonObject);
+
+	    var exportedFilenmae = fileTitle + '.csv' || 'export.csv';
+
+	    var blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+	    if (navigator.msSaveBlob) { // IE 10+
+	        navigator.msSaveBlob(blob, exportedFilenmae);
+	    } else {
+	        var link = document.createElement("a");
+	        if (link.download !== undefined) { // feature detection
+	            // Browsers that support HTML5 download attribute
+	            var url = URL.createObjectURL(blob);
+	            link.setAttribute("href", url);
+	            link.setAttribute("download", exportedFilenmae);
+	            link.style.visibility = 'hidden';
+	            document.body.appendChild(link);
+	            link.click();
+	            document.body.removeChild(link);
+	        }
+	    }
+	}
+	function convertToCSV(objArray) {
+	    var array = typeof objArray != 'object' ? JSON.parse(objArray) : objArray;
+	    var str = '';
+
+	    for (var i = 0; i < array.length; i++) {
+	        var line = '';
+	        for (var index in array[i]) {
+	            if (line != '') line += ','
+
+	            line += array[i][index];
+	        }
+
+	        str += line + '\r\n';
+	    }
+
+	    return str;
+	}
+
+	
+</script>
+
+</body>
+
+</html>
+
