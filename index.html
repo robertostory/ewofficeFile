@@ -23,12 +23,13 @@
 	  font-size: 1.6rem;
 	  overflow:hidden;
 	  font-family:'Montserrat', sans-serif;
-	  background-color:#ff0000;	  
+	  background-color:#e8e8e8;	  
 	}
 	.upload-btn-wrapper {
 	  position: relative;
 	  overflow: hidden;
 	  display: inline-block;
+          cursor:pointer;
 	}
 
 	.btn {
@@ -39,6 +40,7 @@
 	  border-radius: 8px;
 	  font-size: 20px;
 	  font-weight: bold;
+	  cursor:pointer;
 	}
 
 	.upload-btn-wrapper input[type=file] {
@@ -77,7 +79,7 @@
 
 	 function process(csv) {
 
-	     // Newline split
+	     // Lanzo nuevo SPlit
 	     var lines = csv.split("\n");
 
 	     result = [];
@@ -88,7 +90,7 @@
 
 	        var obj = {};
 
-	        //Comma split
+	        //Separo por Coma el Split
 	        var currentline = lines[i].split(",");
 
 	        for (var j = 0; j < headers.length; j++) {
@@ -126,7 +128,7 @@
 
 	function errorHandler(evt) {
 	   if (evt.target.error.name == "NotReadableError") {
-	       alert("Canno't read file !");
+	       alert("No pude leer el Archivo!");
 	   }
 	}
 
@@ -135,7 +137,7 @@
 	        items.unshift(headers);
 	    }
 
-	    // Convert Object to JSON
+	    // Convierto el objeto a Json
 	    var jsonObject = JSON.stringify(items);
 
 	    var csv = this.convertToCSV(jsonObject);
@@ -147,8 +149,8 @@
 	        navigator.msSaveBlob(blob, exportedFilenmae);
 	    } else {
 	        var link = document.createElement("a");
-	        if (link.download !== undefined) { // feature detection
-	            // Browsers that support HTML5 download attribute
+	        if (link.download !== undefined) { // Detección
+	            // Navegador que admite descarga HTML5
 	            var url = URL.createObjectURL(blob);
 	            link.setAttribute("href", url);
 	            link.setAttribute("download", exportedFilenmae);
